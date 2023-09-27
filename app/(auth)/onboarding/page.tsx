@@ -5,11 +5,7 @@ import { User } from "@clerk/nextjs/server";
 const Onboarding = async () => {
   const user: User | null = await currentUser();
   const userInfo = {
-    name: "",
-    _id: "",
-    username: "",
-    bio: "",
-    image: "",
+    
   };
   const userData = {
     id: user?.id,
@@ -27,7 +23,7 @@ const Onboarding = async () => {
         Complete Your Profile now to use Nector
       </p>
       <section className="bg-dark-2 p-10 mt-9">
-        {/* <AccountProfile user={userData} btnTitle="Continue" /> */}
+        <AccountProfile user={userData} btnTitle="Continue" />
       </section>
     </main>
   );

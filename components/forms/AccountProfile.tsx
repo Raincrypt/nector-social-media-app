@@ -1,21 +1,18 @@
 "use client";
 
-import * as z from "zod";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { UserValidation } from "@/lib/validations/user";
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import Image from "next/image";
+import { Form, FormField } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { UserValidation } from "@/lib/validations/user";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { ChangeEvent, useState } from "react";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
+import { Textarea } from "../ui/textarea";
+import FormInputDefault from "./FormInputDefault";
+import FormInputImage from "./FormInputImage";
+import { isBase64Image } from "@/lib/utils";
+import { useUploadThing } from "@/lib/uploadthing/uploadthing";
 
 interface props {
   user: {
@@ -30,6 +27,9 @@ interface props {
 }
 
 const AccountProfile = ({ user, btnTitle }: props) => {
+  const [files, setFiles] = useState<File[]>([]);
+  const { startUpload } = useUploadThing("media");
+
   const form = useForm({
     resolver: zodResolver(UserValidation),
     defaultValues: {
@@ -40,10 +40,42 @@ const AccountProfile = ({ user, btnTitle }: props) => {
     },
   });
 
-  function onSubmit(values: z.infer<typeof UserValidation>) {
-    // Do something with the form values.
-    // ✅ This will be type-safe and validated.
-    console.log(values);
+  const handleImage = (
+    e: ChangeEvent<HTMLInputElement>,
+    fieldChange: (value: string) => void
+  ) => {
+    e.preventDefault();
+
+    const fileReader = new FileReader();
+
+    if (e.target.files && e.target.files.length > 0) {
+      const file = e.target.files[0];
+      setFiles(Array.from(e.target.files));
+
+      if (!file.type.includes("image")) return; //if file type is not image
+
+      fileReader.onload = async (event) => {
+        const imageDataUrl = event.target?.result?.toString() || "";
+        fieldChange(imageDataUrl);
+      };
+
+      fileReader.readAsDataURL(file);
+    }
+  };
+
+  async function onSubmit(values: z.infer<typeof UserValidation>) {
+    const blob = values.profile_photo;
+    const hasImageChanged = isBase64Image(blob);
+
+    if (hasImageChanged) {
+      const imgres = await startUpload(files);
+
+      if(imgres && imgres[0].fileUrl){
+        values.profile_photo = imgres[0].fileUrl;
+      }
+    }
+
+    // Update User Profile
   }
 
   return (
@@ -52,42 +84,73 @@ const AccountProfile = ({ user, btnTitle }: props) => {
         onSubmit={form.handleSubmit(onSubmit)}
         className="flex flex-col justify-start gap-10"
       >
+        {/* Uploading Image */}
         <FormField
           control={form.control}
           name="profile_photo"
           render={({ field }) => (
-            <FormItem className="flex items-center gap-4">
-              <FormLabel className="account-form_image-label">
-                {field.value ? (
-                  <Image
-                    className="rounded-full object-contain"
-                    src={field.value}
-                    alt="profile photo"
-                    width={96}
-                    height={96}
-                    priority
-                  />
-                ) : (
-                  <Image
-                    className="object-contain"
-                    src="/assets/profile.svg"
-                    alt="profile photo"
-                    width={24}
-                    height={24}
-                  />
-                )}
-              </FormLabel>
-              <FormControl>
-                <Input placeholder="shadcn" {...field} />
-              </FormControl>
-              <FormDescription>
-                This is your public display name.
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
+            <FormInputImage src={field.value}>
+              <Input
+                className="account-form_image-input"
+                type="file"
+                accept="image/*"
+                placeholder="Upload a photo"
+                onChange={(e) => handleImage(e, field.onChange)}
+              />
+            </FormInputImage>
           )}
         />
-        <Button type="submit">{btnTitle}</Button>
+
+        {/* Updating Name */}
+        <FormField
+          control={form.control}
+          name="name"
+          render={({ field }) => (
+            <FormInputDefault label="name">
+              <Input
+                className="account-form_input no-focus"
+                type="text"
+                placeholder="Name"
+                {...field}
+              />
+            </FormInputDefault>
+          )}
+        />
+
+        {/* Adding username */}
+        <FormField
+          control={form.control}
+          name="username"
+          render={({ field }) => (
+            <FormInputDefault label="username">
+              <Input
+                className="account-form_input no-focus"
+                type="text"
+                placeholder="Username"
+                {...field}
+              />
+            </FormInputDefault>
+          )}
+        />
+
+        {/* Adding Bio */}
+        <FormField
+          control={form.control}
+          name="bio"
+          render={({ field }) => (
+            <FormInputDefault label="bio">
+              <Textarea
+                className="account-form_input no-focus"
+                rows={10}
+                placeholder="Bio"
+                {...field}
+              />
+            </FormInputDefault>
+          )}
+        />
+        <Button type="submit" className="bg-primary-500">
+          {btnTitle}
+        </Button>
       </form>
     </Form>
   );
