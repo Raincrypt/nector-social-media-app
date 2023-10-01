@@ -7,6 +7,7 @@ import { redirect } from "next/navigation";
 const Onboarding = async () => {
 
   const user = await currentUser();
+  if (!user) return null; // to avoid typescript warnings
 
   const userInfo = await fetchUser(user.id);
   
