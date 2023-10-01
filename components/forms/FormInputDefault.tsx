@@ -1,4 +1,4 @@
-import { FormControl, FormItem, FormLabel } from "@/components/ui/form";
+import { FormControl, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { ReactNode } from "react";
 
 const FormInputDefault = ({
@@ -18,6 +18,7 @@ const FormInputDefault = ({
       <FormControl className="flex-1 text-base-semibold text-gray-200">
         {children}
       </FormControl>
+      <FormMessage/>
     </FormItem>
   );
 };

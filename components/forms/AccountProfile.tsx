@@ -12,7 +12,9 @@ import { Textarea } from "../ui/textarea";
 import FormInputDefault from "./FormInputDefault";
 import FormInputImage from "./FormInputImage";
 import { isBase64Image } from "@/lib/utils";
-import { useUploadThing } from "@/lib/uploadthing/uploadthing";
+import { useUploadThing } from "@/lib/uploadthing";
+import { updateUser } from "@/lib/actions/user.actions";
+import { usePathname, useRouter } from "next/navigation";
 
 interface props {
   user: {
@@ -29,6 +31,8 @@ interface props {
 const AccountProfile = ({ user, btnTitle }: props) => {
   const [files, setFiles] = useState<File[]>([]);
   const { startUpload } = useUploadThing("media");
+  const router = useRouter();
+  const pathname = usePathname();
 
   const form = useForm({
     resolver: zodResolver(UserValidation),
@@ -63,19 +67,38 @@ const AccountProfile = ({ user, btnTitle }: props) => {
     }
   };
 
-  async function onSubmit(values: z.infer<typeof UserValidation>) {
+   const onSubmit = async (values: z.infer<typeof UserValidation>) => {
     const blob = values.profile_photo;
     const hasImageChanged = isBase64Image(blob);
 
     if (hasImageChanged) {
       const imgres = await startUpload(files);
 
-      if(imgres && imgres[0].fileUrl){
+      if (imgres && imgres[0].fileUrl) {
         values.profile_photo = imgres[0].fileUrl;
       }
     }
 
     // Update User Profile
+    try {
+      await updateUser({
+        userId: user.id,
+        username: values.username,
+        name: values.name,
+        bio: values.bio,
+        image: values.profile_photo,
+        path: pathname,
+      });
+
+      if (pathname === "/profile/edit") {
+        router.back();
+      } else {
+        router.push("/");
+      }
+
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   return (

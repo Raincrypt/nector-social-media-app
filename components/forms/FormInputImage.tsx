@@ -1,4 +1,4 @@
-import { FormControl, FormItem, FormLabel } from "@/components/ui/form";
+import { FormControl, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import Image from "next/image";
 import { ReactNode } from "react";
 
@@ -34,6 +34,7 @@ const FormInputImage = ({
       <FormControl className="flex-1 text-base-semibold text-gray-200">
         {children}
       </FormControl>
+      <FormMessage/>
     </FormItem>
   );
 };

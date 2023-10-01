@@ -1,5 +1,6 @@
 "use client";
 
+import { useAuth } from "@clerk/nextjs";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ReactNode } from "react";
@@ -15,6 +16,9 @@ const NavLink = ({
 }) => {
 
   const pathname = usePathname();
+  const { userId } = useAuth();
+
+  if (linkRoute === "/profile") linkRoute = `${linkRoute}/${userId}`;
 
   const isActive: boolean =
     pathname === linkRoute ||
