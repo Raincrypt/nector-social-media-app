@@ -38,7 +38,6 @@ const ThreadCard = ({
   comments,
   isComment,
 }: ThreadCardType) => {
-  console.log(author.image)
   return (
     <article
       className={`flex w-full flex-col rounded-xl ${
