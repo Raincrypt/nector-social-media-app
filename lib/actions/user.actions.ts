@@ -46,8 +46,7 @@ export async function fetchUser(userId: string) {
   try {
     connectToDB();
 
-    return await User.findOne({ id: userId })
-    .populate({
+    return await User.findOne({ id: userId }).populate({
       path: "communities",
       model: Community,
     });
@@ -56,13 +55,14 @@ export async function fetchUser(userId: string) {
   }
 }
 
-export async function fetchUsers({userId,
+export async function fetchUsers({
+  userId,
   searchString = "",
   pageNumber = 1,
   pageSize = 20,
   sortBy = "desc",
 }: {
-  userId: string;
+  userId: string | null;
   searchString?: string;
   pageNumber?: number;
   pageSize?: number;
@@ -77,10 +77,14 @@ export async function fetchUsers({userId,
     // Create a case-insensitive regular expression for the provided search string.
     const regex = new RegExp(searchString, "i");
 
-     // Create an initial query object to filter users.
-     const query: FilterQuery<typeof User> = {
+    // Create an initial query object to filter users.
+    const query: FilterQuery<typeof User> = {
       id: { $ne: userId }, // Exclude the current user from the results.
     };
+    
+    if (userId === null) {
+      const query = User.find();
+    }
 
     // If the search string is not empty, add the $or operator to match either username or name fields.
     if (searchString.trim() !== "") {
@@ -119,8 +123,7 @@ export const fetchUserPosts = async (userId: string) => {
     connectToDB();
 
     // Find all threads authored by the user with the given userId
-    const threads = await User.findOne({ id: userId })
-    .populate({
+    const threads = await User.findOne({ id: userId }).populate({
       path: "threads",
       model: Thread,
       populate: [

@@ -3,7 +3,7 @@ import Image from "next/image";
 
 interface Props {
   accountId: string;
-  authUserId: string;
+  authUserId: string | null;
   name: string;
   username: string;
   imgUrl: string;

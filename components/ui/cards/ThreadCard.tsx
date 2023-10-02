@@ -5,7 +5,7 @@ import Link from "next/link";
 
 interface ThreadCardType {
   id: string;
-  currentUserId: string;
+  currentUserId: string | null;
   parentId: string | null;
   content: string;
   author: {

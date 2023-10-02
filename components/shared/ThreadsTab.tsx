@@ -31,7 +31,7 @@ interface Result {
 }
 
 interface Props {
-  currentUserId: string;
+  currentUserId: string | null;
   accountId: string;
   accountType: "Community" | "User";
 }

@@ -1,16 +1,18 @@
 import { sidebarLinks } from "@/constants/constants";
+import { SignedIn, currentUser } from "@clerk/nextjs";
 import Image from "next/image";
 import NavLink from "../ui/NavLink";
-import { SignedIn, useAuth } from "@clerk/nextjs";
 import SignOutBtn from "../ui/SignOutBtn";
 
-const LeftSidebar = () => {
-  
+const LeftSidebar = async () => {
+  const user = await currentUser();
+
+  let allLinks = user ? sidebarLinks : sidebarLinks.filter((link)=>link.label !== "Profile");
 
   return (
     <aside className="custom-scrollbar leftsidebar">
       <div className="flex flex-1 w-full px-6 gap-6 flex-col">
-        {sidebarLinks.map((link) => {
+        {allLinks.map((link) => {
           return (
             <NavLink
               className="leftsidebar_link"

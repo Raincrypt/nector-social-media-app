@@ -9,7 +9,6 @@ import ThreadsTab from "@/components/shared/ThreadsTab";
 
 const page = async ({ params }: { params: { id: string } }) => {
   const user = await currentUser();
-  if (!user) return null;
 
   const userInfo = await fetchUser(params.id);
   if (!userInfo?.onboarded) redirect("/onboarding");
@@ -18,7 +17,7 @@ const page = async ({ params }: { params: { id: string } }) => {
     <section>
       <ProfileHeader
         accountId={userInfo.id}
-        authUserId={user.id}
+        authUserId={user ? user.id : null}
         name={userInfo.name}
         username={userInfo.username}
         imgUrl={userInfo.image}
@@ -55,7 +54,7 @@ const page = async ({ params }: { params: { id: string } }) => {
             >
               {/* @ts-ignore */}
               <ThreadsTab
-                currentUserId={user.id}
+                currentUserId={user ? user.id : null}
                 accountId={userInfo.id}
                 accountType="User"
               />
