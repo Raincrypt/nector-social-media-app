@@ -111,14 +111,19 @@ const ThreadCard = ({
             </div>
           </div>
         </div>
-        <DeleteThread
+
+        {/* deleteThread */}
+        {/* <DeleteThread
           threadId={JSON.stringify(id)}
           currentUserId={currentUserId}
           authorId={author.id}
           parentId={parentId}
           isComment={isComment}
-        />
+        /> */}
+        
       </div>
+
+      {/* shows comment logos */}
       {!isComment && comments.length > 0 && (
         <div className="ml-1 mt-3 flex items-center gap-2">
           {comments.slice(0, 2).map((comment, index) => (

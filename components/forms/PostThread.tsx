@@ -10,20 +10,14 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 
+import { createThread } from "@/lib/actions/thread.actions";
+import { ThreadValidation } from "@/lib/validations/thread";
+import { useOrganization } from "@clerk/nextjs";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ChangeEvent, useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { Textarea } from "../ui/textarea";
-import FormInputDefault from "./FormInputDefault";
-import FormInputImage from "./FormInputImage";
-import { isBase64Image } from "@/lib/utils";
-import { useUploadThing } from "@/lib/uploadthing";
-import { usePathname, useRouter } from "next/navigation";
-
-// import { updateUser } from "@/lib/actions/user.actions";
-import { ThreadValidation } from "@/lib/validations/thread";
-import { createThread } from "@/lib/actions/thread.actions";
 
 interface Props {
   userId: string;
@@ -32,6 +26,7 @@ interface Props {
 const PostThread = ({ userId }: Props) => {
   const router = useRouter();
   const pathname = usePathname();
+  const {organization} = useOrganization()
 
   const form = useForm({
     resolver: zodResolver(ThreadValidation),
@@ -46,6 +41,7 @@ const PostThread = ({ userId }: Props) => {
       text: values.thread,
       author: userId,
       path: pathname,
+      communityId: organization ? organization.id : null
     });
 
     router.push("/");
